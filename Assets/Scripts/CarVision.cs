@@ -71,11 +71,11 @@ public class CarVision
         Material testMaterial = brickMaterial;
         Collider[] hitColliders = Physics.OverlapBox(_intersecCheckTransform.position, new Vector3(50.0f, 2.0f, 50.0f), Quaternion.identity, _carLayerMask);
         dict_mat4.Clear();
-        dict_mat4.Add("car", mat4x4toFloatArr( convertQuaternion(_carGameObject.transform.localToWorldMatrix)));
+        dict_mat4.Add("car", mat4x4toFloatArr( convertMatrixToRightHand(_carGameObject.transform.localToWorldMatrix)));
         foreach (Collider coll in hitColliders)
         {
             changeMaterial(coll.gameObject, detectedMaterial);
-            dict_mat4.Add(coll.gameObject.name, mat4x4toFloatArr(convertQuaternion(coll.gameObject.transform.localToWorldMatrix)));
+            dict_mat4.Add(coll.gameObject.name, mat4x4toFloatArr(convertMatrixToRightHand(coll.gameObject.transform.localToWorldMatrix)));
         }
         _server.fillBuffMat4(dict_mat4);
     }
@@ -130,25 +130,10 @@ public class CarVision
         return BitConverter.GetBytes(i);
     }
 
-    Matrix4x4 convertQuaternion(Matrix4x4 mat4x4) 
+    private Matrix4x4 convertMatrixToRightHand(Matrix4x4 mat4x4) 
     {
-        Vector3 vec3Pos = mat4x4.GetPosition();
-        Vector3 newVec3Pos = new Vector3(vec3Pos.x, vec3Pos.y, vec3Pos.z);
-        Vector3 vec3Scale = ExtractScale(mat4x4);
-        Quaternion oldQuat = mat4x4.rotation;
-        Quaternion newQuat = new Quaternion(oldQuat.x, oldQuat.y, oldQuat.z, oldQuat.w);
-        Matrix4x4 rotMat4x4 = Matrix4x4.Rotate(newQuat);
-        Matrix4x4 scaleMat4x4 = Matrix4x4.Scale(vec3Scale);
-        Matrix4x4 posMat4x4 = Matrix4x4.Translate(vec3Pos);
-        return  posMat4x4 * scaleMat4x4 * rotMat4x4 ;
+        Matrix4x4 Mi = Matrix4x4.identity;
+        Mi[0, 0] = -1.0f;
+        return  Mi * mat4x4 * Mi;
     } 
-
-    public Vector3 ExtractScale(Matrix4x4 matrix)
-    {
-        Vector3 scale;
-        scale.x = new Vector4(matrix.m00, matrix.m10, matrix.m20, matrix.m30).magnitude;
-        scale.y = new Vector4(matrix.m01, matrix.m11, matrix.m21, matrix.m31).magnitude;
-        scale.z = new Vector4(matrix.m02, matrix.m12, matrix.m22, matrix.m32).magnitude;
-        return scale;
-    }
 }
