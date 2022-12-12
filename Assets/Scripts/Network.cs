@@ -69,7 +69,6 @@ namespace Network
         public static void ThreadConnection()
         {
             Byte[] bytes = new Byte[256];
-            String data = null;
             _server.Start();
 
             while (_is_running)
@@ -81,8 +80,6 @@ namespace Network
                 int i;
                 while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                 {
-                    // Translate data bytes to a ASCII string.
-
                     if (_carVision.checkResponseConnection(bytes))
                     {
                         stream.Write(_carVision.getRequestConnectionBytes());
@@ -125,9 +122,6 @@ namespace Network
                     listDataSent.AddRange(CarVision.floatToBytes(cell));
                 }
             }
-
-            string text = listDataSent.Count.ToString();
-            Debug.Log("Message: " + text);
             
             return listDataSent;
         }
