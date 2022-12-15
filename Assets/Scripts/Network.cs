@@ -29,6 +29,11 @@ namespace Network
         {
             return BitConverter.GetBytes(id);
         }
+
+        public UInt64 getId()
+        {
+            return id;
+        }
     }
     class Server
     {
@@ -106,6 +111,7 @@ namespace Network
             listDataSent.AddRange(CarVision.floatToBytes(30.0f));
             
             listDataSent.AddRange(CarVision.intToBytes((UInt64)buff_dict_mat4.Count));
+            bool flag = false;
             foreach(var item in buff_dict_mat4)
             {
                 
@@ -116,7 +122,24 @@ namespace Network
                     else
                         dict_id.Add(item.Key, new ObstacleID());
                 }
-                listDataSent.AddRange(dict_id[item.Key].getBytesOfId());
+                byte[] byte_id = dict_id[item.Key].getBytesOfId();
+
+                listDataSent.AddRange(byte_id);
+                if(byte_id[0] == 0 &&
+                   byte_id[1] == 0 &&
+                   byte_id[2] == 0 &&
+                   byte_id[3] == 0 &&
+                   byte_id[4] == 0 &&
+                   byte_id[5] == 0 &&
+                   byte_id[6] == 0 &&
+                   byte_id[7] == 0)
+                {
+                    if(flag)
+                    {
+                        flag = false;
+                    }
+                    flag = true;
+                }
                 foreach( var cell in item.Value)
                 { 
                     listDataSent.AddRange(CarVision.floatToBytes(cell));

@@ -13,6 +13,7 @@ public class CarVision
     private byte[] bt_request_connection = new byte[] { 0x79, 0x91 };
     private byte[] bt_response_connection = new byte[] { 0x79, 0x90 };
     private byte[] bt_client_request = new byte[] { 0x79, 0x88 };
+    private List<GameObject> markedObstaclesList = new List<GameObject>();
     private List<byte> obstacleBuffer;
     public byte[] bt_client_response = new byte[] { 0x79, 0x91 };
     public bool is_connected { get; set; }
@@ -62,19 +63,19 @@ public class CarVision
 
     public void updateObserving()
     {
-        foreach (Transform child in _gameObject.transform)
+        foreach (GameObject obstacle in markedObstaclesList)
         {
-            GameObject childGameObject = child.gameObject;
-            changeMaterial(childGameObject, brickMaterial);
+            changeMaterial(obstacle, brickMaterial);
         }
 
-        Material testMaterial = brickMaterial;
         Collider[] hitColliders = Physics.OverlapBox(_intersecCheckTransform.position, new Vector3(50.0f, 2.0f, 50.0f), Quaternion.identity, _carLayerMask);
+        markedObstaclesList.Clear();
         dict_mat4.Clear();
         dict_mat4.Add("car", mat4x4toFloatArr( convertMatrixToRightHand(_carGameObject.transform.localToWorldMatrix)));
         foreach (Collider coll in hitColliders)
         {
             changeMaterial(coll.gameObject, detectedMaterial);
+            markedObstaclesList.Add(coll.gameObject);
             dict_mat4.Add(coll.gameObject.name, mat4x4toFloatArr(convertMatrixToRightHand(coll.gameObject.transform.localToWorldMatrix)));
         }
         _server.fillBuffMat4(dict_mat4);
@@ -134,6 +135,9 @@ public class CarVision
     {
         Matrix4x4 Mi = Matrix4x4.identity;
         Mi[0, 0] = -1.0f;
-        return  Mi * mat4x4 * Mi;
+        Vector3 vec3Scale = new Vector3(0.5f, 0.5f, 0.5f);
+        Matrix4x4 scaleMat4x4 = Matrix4x4.Scale(vec3Scale);
+        mat4x4 = mat4x4 * scaleMat4x4;
+        return Mi * mat4x4 * Mi;
     } 
 }
