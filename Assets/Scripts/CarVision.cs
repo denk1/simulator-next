@@ -71,12 +71,12 @@ public class CarVision
         Collider[] hitColliders = Physics.OverlapBox(_intersecCheckTransform.position, new Vector3(50.0f, 2.0f, 50.0f), Quaternion.identity, _carLayerMask);
         markedObstaclesList.Clear();
         dict_mat4.Clear();
-        dict_mat4.Add("car", mat4x4toFloatArr( convertMatrixToRightHand(_carGameObject.transform.localToWorldMatrix)));
+        dict_mat4.Add("car", mat4x4toFloatArr(convertMatrixToRightHand(_carGameObject.transform.localToWorldMatrix, false)));
         foreach (Collider coll in hitColliders)
         {
             changeMaterial(coll.gameObject, detectedMaterial);
             markedObstaclesList.Add(coll.gameObject);
-            dict_mat4.Add(coll.gameObject.name, mat4x4toFloatArr(convertMatrixToRightHand(coll.gameObject.transform.localToWorldMatrix)));
+            dict_mat4.Add(coll.gameObject.name, mat4x4toFloatArr(convertMatrixToRightHand(coll.gameObject.transform.localToWorldMatrix, true)));
         }
         _server.fillBuffMat4(dict_mat4);
     }
@@ -121,23 +121,26 @@ public class CarVision
         return mat4x4;
     }
 
-    public static byte[] floatToBytes(float f) 
+    public static byte[] floatToBytes(float f)
     {
         return BitConverter.GetBytes(f);
     }
 
-    public static byte[] intToBytes(UInt64 i) 
+    public static byte[] intToBytes(UInt64 i)
     {
         return BitConverter.GetBytes(i);
     }
 
-    private Matrix4x4 convertMatrixToRightHand(Matrix4x4 mat4x4) 
+    private Matrix4x4 convertMatrixToRightHand(Matrix4x4 mat4x4, bool isScaleCorrection)
     {
         Matrix4x4 Mi = Matrix4x4.identity;
         Mi[0, 0] = -1.0f;
         Vector3 vec3Scale = new Vector3(0.5f, 0.5f, 0.5f);
-        Matrix4x4 scaleMat4x4 = Matrix4x4.Scale(vec3Scale);
-        mat4x4 = mat4x4 * scaleMat4x4;
+        if (isScaleCorrection)
+        {
+            Matrix4x4 scaleMat4x4 = Matrix4x4.Scale(vec3Scale);
+            mat4x4 = mat4x4 * scaleMat4x4;
+        }
         return Mi * mat4x4 * Mi;
-    } 
+    }
 }
