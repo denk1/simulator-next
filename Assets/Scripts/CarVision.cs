@@ -9,6 +9,7 @@ public class CarVision
     Material brickMaterial = null;
     Material detectedMaterial = null;
     GameObject _gameObject = null;
+    private static Mutex mut = new Mutex();
     SortedDictionary<string, float[]> dict_mat4;
     private byte[] bt_request_connection = new byte[] { 0x79, 0x91 };
     private byte[] bt_response_connection = new byte[] { 0x79, 0x90 };
@@ -22,7 +23,10 @@ public class CarVision
     private bool _is_running = true;
     private LayerMask _carLayerMask;
     private GameObject _carGameObject;
+    private Rigidbody _carRigidBody;
     private Transform _intersecCheckTransform;
+    private float carVelocity = 0.0f;
+
     public CarVision(GameObject carGameObject, GameObject gameObject, Transform intersecCheckTransform, LayerMask carLayerMask)
     {
         brickMaterial = Resources.Load<Material>("Materials/Briks");
@@ -30,6 +34,7 @@ public class CarVision
         is_connected = false;
         dict_mat4 = new SortedDictionary<string, float[]>();
         _carGameObject = carGameObject;
+        _carRigidBody = _carGameObject.GetComponent<Rigidbody>();
         _gameObject = gameObject;
         _intersecCheckTransform = intersecCheckTransform;
         _carLayerMask = carLayerMask;
@@ -129,6 +134,21 @@ public class CarVision
     public static byte[] intToBytes(UInt64 i)
     {
         return BitConverter.GetBytes(i);
+    }
+
+    public void setCarVelocity(float v) 
+    {
+        mut.WaitOne();
+        carVelocity = (float)Math.Round(v, 0);
+        mut.ReleaseMutex();
+    }
+    public float getCarSpeed()
+    {
+        float receivedCarVelocity = 0.0f;
+        mut.WaitOne();
+        receivedCarVelocity = carVelocity;
+        mut.ReleaseMutex();
+        return receivedCarVelocity;
     }
 
     private Matrix4x4 convertMatrixToRightHand(Matrix4x4 mat4x4, bool isScaleCorrection)

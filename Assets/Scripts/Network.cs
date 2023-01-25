@@ -108,7 +108,7 @@ namespace Network
 
             List<byte> listDataSent = new List<byte>();
             listDataSent.AddRange(_carVision.bt_client_response);
-            listDataSent.AddRange(CarVision.floatToBytes(30.0f));
+            listDataSent.AddRange(CarVision.floatToBytes(_carVision.getCarSpeed()));
             
             listDataSent.AddRange(CarVision.intToBytes((UInt64)buff_dict_mat4.Count));
             bool flag = false;
