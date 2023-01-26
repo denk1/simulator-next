@@ -22,7 +22,9 @@ public class Dodge_Chellenger_SRT10_FBX : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyDown (KeyCode.R)) {
+            carGameObject.transform.position = new Vector3(0.0f, 2.0f, 0.0f);
+        }
 
     }
 
