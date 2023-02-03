@@ -23,7 +23,11 @@ public class Dodge_Chellenger_SRT10_FBX : MonoBehaviour
     void Update()
     {
         if (Input.GetKeyDown (KeyCode.R)) {
-            carGameObject.transform.position = new Vector3(0.0f, 2.0f, 0.0f);
+            carGameObject.transform.position = new Vector3(17.0f, 2.0f, 17.0f);
+            carGameObject.transform.forward = new Vector3(0.0f, 0.0f, 1.0f);
+            carGameObject.transform.rotation = Quaternion.identity;
+            carRigidbody.velocity = Vector3.zero;
+            
         }
 
     }
